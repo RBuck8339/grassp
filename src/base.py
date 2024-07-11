@@ -1,4 +1,4 @@
-import utils
+import my_utils
 import torch
 
 
@@ -47,7 +47,7 @@ class BaseModel(torch.nn.Module):
         self.__seed = seed
         
         # Set the seed value for reproducibility
-        utils.set_seed(self.__seed)
+        my_utils.set_seed(self.__seed)
 
         if self.__verbose:
             print(f"+ Model parameters")
@@ -81,7 +81,7 @@ class BaseModel(torch.nn.Module):
         """
 
         if standardize:
-            return utils.standardize(self.__x0_s)
+            return my_utils.standardize(self.__x0_s)
         else:
             return self.__x0_s
 
@@ -92,7 +92,7 @@ class BaseModel(torch.nn.Module):
         """
 
         if standardize:
-            return utils.standardize(self.__x0_r)
+            return my_utils.standardize(self.__x0_r)
         else:
             return self.__x0_r
 
@@ -103,7 +103,7 @@ class BaseModel(torch.nn.Module):
         """
 
         if standardize:
-            return utils.standardize(self.__v_s)
+            return my_utils.standardize(self.__v_s)
         else:
             return self.__v_s
 
@@ -114,7 +114,7 @@ class BaseModel(torch.nn.Module):
         """
 
         if standardize:
-            return utils.standardize(self.__v_r)
+            return my_utils.standardize(self.__v_r)
         else:
             return self.__v_r
 
@@ -231,7 +231,7 @@ class BaseModel(torch.nn.Module):
         """
 
         # Compute the bin indices of the given time points
-        bin_indices = utils.div(time_list, self.get_bin_width()).type(torch.long)
+        bin_indices = my_utils.div(time_list, self.get_bin_width()).type(torch.long)
         # If there is a time equal to the last time, set its bin index to the last bin
         bin_indices[bin_indices == self.get_bins_num()] = self.get_bins_num() - 1
 
@@ -246,7 +246,7 @@ class BaseModel(torch.nn.Module):
         """
 
         # Compute the residual times
-        residual_time = utils.remainder(time_list, self.get_bin_width())
+        residual_time = my_utils.remainder(time_list, self.get_bin_width())
         # If there is a time equal to the last time, set its residual time to bin width
         residual_time[time_list == self.__last_time] = self.get_bin_width()
 
@@ -442,12 +442,12 @@ class BaseModel(torch.nn.Module):
         )
 
         norm_delta_r = torch.norm(delta_r, p=2, dim=1, keepdim=False)
-        norm_delta_v = torch.norm(delta_v, p=2, dim=1, keepdim=False) + utils.EPS
+        norm_delta_v = torch.norm(delta_v, p=2, dim=1, keepdim=False) + my_utils.EPS
         inv_norm_delta_v = 1.0 / norm_delta_v
         delta_r_v = (delta_r * delta_v).sum(dim=1, keepdim=False)
         r = delta_r_v * inv_norm_delta_v
 
-        term0 = 0.5 * torch.sqrt(torch.as_tensor(utils.PI, device=self.__device)) * inv_norm_delta_v
+        term0 = 0.5 * torch.sqrt(torch.as_tensor(my_utils.PI, device=self.__device)) * inv_norm_delta_v
 
         # Because of numerical issues, we need to clamp the ratio vector, r, which is upper bounded by norm_delta_r
         # But it is not enough to bound only norm_delta_r since we don't update the values of delta_r.
@@ -458,8 +458,8 @@ class BaseModel(torch.nn.Module):
         term1_plus = torch.exp(beta_ij_plus - (r ** 2 - norm_delta_r ** 2))
         term1_neg = torch.exp(beta_ij_neg + (r ** 2 - norm_delta_r ** 2))
 
-        term2_u_plus = utils.erfi_approx(delta_t * norm_delta_v + r)
-        term2_l_plus = utils.erfi_approx(r)
+        term2_u_plus = my_utils.erfi_approx(delta_t * norm_delta_v + r)
+        term2_l_plus = my_utils.erfi_approx(r)
 
         term2_u_neg = torch.erf(delta_t * norm_delta_v + r)
         term2_l_neg = torch.erf(r)
@@ -493,8 +493,8 @@ class BaseModel(torch.nn.Module):
 
         # Before starting, we need to extend the time_list, pairs, and states for the model bin boundaries
         # Find the initial and the last bin indices of the integral interval
-        init_bin_idx = utils.div(time_list, self.get_bin_width())
-        last_bin_idx = utils.div(time_list + delta_t, self.get_bin_width())
+        init_bin_idx = my_utils.div(time_list, self.get_bin_width())
+        last_bin_idx = my_utils.div(time_list + delta_t, self.get_bin_width())
         # Find the number of required bins for each event time
         repeat_counts = (last_bin_idx - init_bin_idx + 1).to(torch.long)
 
@@ -540,7 +540,7 @@ class BaseModel(torch.nn.Module):
         )
 
         norm_delta_r = torch.norm(delta_r, p=2, dim=1, keepdim=False)
-        norm_delta_v = torch.norm(delta_v, p=2, dim=1, keepdim=False) + utils.EPS
+        norm_delta_v = torch.norm(delta_v, p=2, dim=1, keepdim=False) + my_utils.EPS
 
         inv_norm_delta_v = 1.0 / norm_delta_v
         delta_r_v = (delta_r * delta_v).sum(dim=1, keepdim=False)
@@ -552,13 +552,13 @@ class BaseModel(torch.nn.Module):
         norm_delta_r = torch.clamp(norm_delta_r, max=_UPPER_BOUND)
         r = torch.clamp(r, min=-_UPPER_BOUND, max=_UPPER_BOUND)
 
-        term0 = 0.5 * torch.sqrt(torch.as_tensor(utils.PI, device=self.__device)) * inv_norm_delta_v
+        term0 = 0.5 * torch.sqrt(torch.as_tensor(my_utils.PI, device=self.__device)) * inv_norm_delta_v
         # term1 = torch.exp(beta_ij - (2*states-1)*(r**2 - norm_delta_r**2) )
         term1_plus = torch.exp(beta_ij_plus - (r ** 2 - norm_delta_r ** 2))
         term1_neg = torch.exp(beta_ij_neg + (r ** 2 - norm_delta_r ** 2))
 
-        term2_u_plus = utils.erfi_approx(extended_delta_t * norm_delta_v + r)
-        term2_l_plus = utils.erfi_approx(r)
+        term2_u_plus = my_utils.erfi_approx(extended_delta_t * norm_delta_v + r)
+        term2_l_plus = my_utils.erfi_approx(r)
 
         term2_u_neg = torch.erf(extended_delta_t * norm_delta_v + r)
         term2_l_neg = torch.erf(r)
@@ -631,7 +631,7 @@ class BaseModel(torch.nn.Module):
                 torch.ones(self.get_dim(), device=self.get_device(), dtype=torch.float)
             )
         )
-        log_prior_s = -0.5*(final_dim*utils.LOG2PI+torch.log(d_s).sum()+(v_s**2 @ (1. / d_s)))
+        log_prior_s = -0.5*(final_dim*my_utils.LOG2PI+torch.log(d_s).sum()+(v_s**2 @ (1. / d_s)))
         if self.is_directed():
             d_r = lambda_sq * torch.kron(
                 torch.softmax(self.get_prior_b_sigma_r(), dim=0),
@@ -640,7 +640,7 @@ class BaseModel(torch.nn.Module):
                     torch.ones(self.get_dim(), device=self.get_device(), dtype=torch.float)
                 )
             )
-            log_prior_r = -0.5*(final_dim*utils.LOG2PI+torch.log(d_r).sum()+(v_r**2 @ (1. / d_r)))
+            log_prior_r = -0.5*(final_dim*my_utils.LOG2PI+torch.log(d_r).sum()+(v_r**2 @ (1. / d_r)))
 
         neg_log_prior = log_prior_s
         if self.is_directed():

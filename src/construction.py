@@ -1,5 +1,5 @@
 import torch
-import utils
+import my_utils
 from src.ssp import SequentialSurviveProcess
 from src.base import BaseModel
 from src.dataset import Dataset
@@ -44,7 +44,7 @@ class ConstructionModel(torch.nn.Module):
             self.__prior_B_x0_r = torch.as_tensor([prior_B_x0_r], dtype=torch.float, device=device)
 
         # Construct the Q matrix for the node matrix C, (nodes)
-        self.__prior_C_Q_s = -utils.INF * torch.ones(size=(self.__nodes_num, self.__k), dtype=torch.float)
+        self.__prior_C_Q_s = -my_utils.INF * torch.ones(size=(self.__nodes_num, self.__k), dtype=torch.float)
         for k in range(self.__k):
             self.__prior_C_Q_s[sum(self.__cluster_sizes[:k]):sum(self.__cluster_sizes[:k + 1]), k] = 0
         self.__prior_C_Q_r = self.__prior_C_Q_s if self.__directed else None
@@ -59,7 +59,7 @@ class ConstructionModel(torch.nn.Module):
         self.__seed = seed
 
         # Set the seed
-        utils.set_seed(self.__seed)
+        my_utils.set_seed(self.__seed)
 
         # Sample a graph
         self.__bm, self.__dataset = self.sample_graph()
@@ -147,7 +147,7 @@ class ConstructionModel(torch.nn.Module):
 
         # Construct the factor of B matrix (bins)
         B_factor_s = torch.linalg.cholesky(
-            utils.EPS*torch.eye(self.__bins_num+1, device=self.__device) + torch.block_diag(
+            my_utils.EPS*torch.eye(self.__bins_num+1, device=self.__device) + torch.block_diag(
                 self.__prior_B_x0_s**2,
                 torch.exp(-((bin_centers - bin_centers.T)**2 / (2.0*(self.__prior_B_ls_s**2))))
             )
@@ -178,7 +178,7 @@ class ConstructionModel(torch.nn.Module):
 
             # Construct the factor of B matrix (bins)
             B_factor_r = torch.linalg.cholesky(
-                utils.EPS*torch.eye(self.__bins_num+1, device=self.__device) + torch.block_diag(
+                my_utils.EPS*torch.eye(self.__bins_num+1, device=self.__device) + torch.block_diag(
                     torch.sigmoid(self.__prior_B_x0_logit_c_r)**2,
                     torch.exp(-((bin_centers - bin_centers.T)**2 / (2.0*(self.__prior_B_ls_r**2))))
                 )
@@ -208,7 +208,7 @@ class ConstructionModel(torch.nn.Module):
         else:
             x0_r, v_r = None, None
 
-        return utils.standardize(x0_s), utils.standardize(v_s), utils.standardize(x0_r), utils.standardize(v_r)
+        return my_utils.standardize(x0_s), my_utils.standardize(v_s), my_utils.standardize(x0_r), my_utils.standardize(v_r)
 
     def sample_events(self, bm: BaseModel) -> tuple[list, list, list]:
         """
@@ -231,7 +231,7 @@ class ConstructionModel(torch.nn.Module):
             rt_r = rt_s
 
         edges, edge_times, edge_states = [], [], []
-        for i, j in utils.pair_iter(self.__nodes_num, self.__directed):
+        for i, j in my_utils.pair_iter(self.__nodes_num, self.__directed):
             # print(i,j)
 
             # Define the intensity function for each node pair (i,j)
@@ -242,7 +242,7 @@ class ConstructionModel(torch.nn.Module):
             ).item()
 
             # Get the flat index of the pair
-            flat_idx = utils.matIdx2flatIdx(
+            flat_idx = my_utils.matIdx2flatIdx(
                 torch.as_tensor([i], dtype=torch.long), torch.as_tensor([j], dtype=torch.long),
                 self.__nodes_num, is_directed=self.__directed
             )
@@ -287,7 +287,7 @@ class ConstructionModel(torch.nn.Module):
 
             # For the model containing only position and velocity
             # Find the point in which the derivative equal to 0
-            t = - torch.dot(delta_idx_x, delta_idx_v) / (torch.dot(delta_idx_v, delta_idx_v) + utils.EPS) + interval_init_time
+            t = - torch.dot(delta_idx_x, delta_idx_v) / (torch.dot(delta_idx_v, delta_idx_v) + my_utils.EPS) + interval_init_time
 
             if interval_init_time < t < interval_last_time:
                 critical_points.append(t)

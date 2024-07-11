@@ -1,5 +1,5 @@
 import torch
-import utils
+import my_utils
 
 
 class BatchSampler(torch.nn.Module):
@@ -29,7 +29,7 @@ class BatchSampler(torch.nn.Module):
             self.__pairs_num = self.__pairs_num // 2
 
         # Convert the edges to flat indices
-        self.__edges_flat_idx = utils.matIdx2flatIdx(
+        self.__edges_flat_idx = my_utils.matIdx2flatIdx(
             self.__edges[0], self.__edges[1], n=self.__nodes_num, is_directed=self.__directed
         )
         _, counts = torch.unique(self.__edges_flat_idx, sorted=True, return_inverse=False, return_counts=True)
@@ -53,7 +53,7 @@ class BatchSampler(torch.nn.Module):
             values=self.__edge_states.to(torch.float),
             size=(self.__pairs_num, max_edge_count_per_pair), device=self.__device
         )
-        utils.set_seed(seed)
+        my_utils.set_seed(seed)
 
     def sample(self):
         """
@@ -94,7 +94,7 @@ class BatchSampler(torch.nn.Module):
             if self.__directed:
                 batch_pair_combin = torch.hstack((batch_pair_combin, torch.flip(batch_pair_combin, dims=(0,))))
         # Convert the batch pairs in flat indices
-        batch_flat_idx_combin = utils.matIdx2flatIdx(
+        batch_flat_idx_combin = my_utils.matIdx2flatIdx(
             batch_pair_combin[0], batch_pair_combin[1], self.__nodes_num, self.__directed
         )
 
@@ -119,7 +119,7 @@ class BatchSampler(torch.nn.Module):
             # Construct the batch edge states
             batch_states = torch.sparse.mm(selection_mat, self.__edge_states_mat).values()
 
-        expanded_pairs, expanded_times, expanded_states, event_states, is_edge, delta_t = utils.expand_data(
+        expanded_pairs, expanded_times, expanded_states, event_states, is_edge, delta_t = my_utils.expand_data(
             nodes_num=self.__nodes_num, directed=self.__directed, bin_bounds=self.__bin_bounds,
             edge_pair_flat_idx=output.indices()[0], edge_times=batch_times, edge_states=batch_states,
             border_pair_flat_idx=batch_flat_idx_combin, device=self.__device

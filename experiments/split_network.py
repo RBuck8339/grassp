@@ -3,9 +3,22 @@ import sys
 import networkx as nx
 from argparse import ArgumentParser, RawTextHelpFormatter
 import torch
+
 import utils
+
+# Get the directory of the script
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Get the parent directory
+parent_dir = os.path.abspath(os.path.join(current_dir, os.pardir))
+
+# Add the parent directory to sys.path
+sys.path.append(parent_dir)
+
+print(parent_dir)
+
+from my_utils import set_seed, flatIdx2matIdx, matIdx2flatIdx, pair_iter
 from src.dataset import Dataset
-from utils import set_seed, flatIdx2matIdx, matIdx2flatIdx
 
 ########################################################################################################################
 
@@ -50,7 +63,7 @@ seed = args.seed
 set_seed(seed=seed)
 
 # Create the target folder
-os.makedirs(output_folder)
+os.makedirs(output_folder, exist_ok=True)
 
 log_file_path = os.path.join(output_folder, "log.txt")
 # orig_stdout = sys.stdout
@@ -230,7 +243,7 @@ total_sample_size = validation_size + completion_size
 
 
 # Construct pair indices
-all_pos_pairs = torch.as_tensor(list(utils.pair_iter(n=nodes_num, is_directed=directed)), dtype=torch.long).T
+all_pos_pairs = torch.as_tensor(list(pair_iter(n=nodes_num, is_directed=directed)), dtype=torch.long).T
 perm = torch.randperm(all_possible_pair_num)
 all_pos_pairs = all_pos_pairs[:, perm]
 

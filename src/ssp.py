@@ -1,5 +1,5 @@
 import torch
-import utils
+import my_utils
 
 
 class SequentialSurviveProcess:
@@ -36,7 +36,7 @@ class SequentialSurviveProcess:
         self.__lambda_max = torch.as_tensor(self.__lambda_max, dtype=torch.float)
 
         # Set seed
-        utils.set_seed(seed=seed)
+        my_utils.set_seed(seed=seed)
 
     def simulate(self) -> tuple[list, list]:
 
@@ -44,7 +44,7 @@ class SequentialSurviveProcess:
         # Step 2
         U = torch.rand(1)  # Random number
         # Random variable from exponential dist.
-        X = (-1.0 / (self.__lambda_max[states[-1], J] + utils.EPS)) * torch.log(U)
+        X = (-1.0 / (self.__lambda_max[states[-1], J] + my_utils.EPS)) * torch.log(U)
 
         while True:
             # Step 3
@@ -65,12 +65,12 @@ class SequentialSurviveProcess:
                 # Step 7 -> Do step 2 then loop starts again at step 3
                 U = torch.rand(1)  # Random number
                 # Random variable from exponential dist.
-                X = (-1./(self.__lambda_max[states[-1], J]+utils.EPS)) * torch.log(U)
+                X = (-1./(self.__lambda_max[states[-1], J]+my_utils.EPS)) * torch.log(U)
                 # If X is too small, then we can discard the current event and sample again
-                if X < utils.EPS and len(S):
+                if X < my_utils.EPS and len(S):
                     S.pop()
                     states.pop()
-                    X = (-1. / (self.__lambda_max[states[-1], J] + utils.EPS)) * torch.log(U)
+                    X = (-1. / (self.__lambda_max[states[-1], J] + my_utils.EPS)) * torch.log(U)
 
             else:
                 # Step 8

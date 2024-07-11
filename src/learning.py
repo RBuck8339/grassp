@@ -2,7 +2,7 @@ import sys
 import math
 import torch
 import time
-import utils
+import my_utils
 from src.base import BaseModel
 from src.sampler import BatchSampler
 
@@ -13,7 +13,7 @@ class LearningModel(BaseModel, torch.nn.Module):
                  bins_num: int, dim: int, prior_lambda: float = 1e5,
                  device: torch.device = 'cpu', verbose: bool = False, seed: int = 19):
 
-        utils.set_seed(seed)
+        my_utils.set_seed(seed)
 
         super(LearningModel, self).__init__(
             x0_s=torch.nn.Parameter(

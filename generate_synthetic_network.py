@@ -1,4 +1,5 @@
 import os
+from src import dataset
 from src.construction import ConstructionModel
 
 
@@ -20,7 +21,9 @@ args = {
 cm = ConstructionModel(**args)
 
 # Define the dataset folder path
-dataset_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'datasets', dataset_name)
+dataset_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'datasets', dataset_name)
+
+print(f'The folder is: {dataset_folder}')
 
 # If the dataset folder does not exist, create it
 if not os.path.exists(dataset_folder):

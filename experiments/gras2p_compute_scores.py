@@ -1,14 +1,25 @@
 import os
+import sys
 import torch
 import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.metrics import average_precision_score, roc_auc_score
+
+# Get the directory of the script
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Get the parent directory
+parent_dir = os.path.abspath(os.path.join(current_dir, os.pardir))
+
+# Add the parent directory to sys.path
+sys.path.append(parent_dir)
+
 from src.dataset import Dataset
 from src.learning import LearningModel
 
 # Define the folder
-BASE_FOLDER = "/gras2p/"
+BASE_FOLDER = ""
 # Define the sample file
 SAMPLE_FILE = "mr=0.1_cr=0.1_pr=0.1"
 

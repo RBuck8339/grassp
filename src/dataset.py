@@ -1,6 +1,6 @@
 import re
 import torch
-import utils
+import my_utils
 
 
 class Dataset:
@@ -245,7 +245,7 @@ class Dataset:
         Print the dataset info
         """
 
-        min_count, max_count = utils.INF, -utils.INF
+        min_count, max_count = my_utils.INF, -my_utils.INF
         data_dict = self.get_data_dict(weights=True)
         for i in data_dict:
             for j in data_dict[i]:
