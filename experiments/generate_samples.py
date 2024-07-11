@@ -1,6 +1,18 @@
 import os
+import sys
 import pickle
 import torch
+
+
+# Get the directory of the script
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Get the parent directory
+parent_dir = os.path.abspath(os.path.join(current_dir, os.pardir))
+
+# Add the parent directory to sys.path
+sys.path.append(parent_dir)
+
 from src.dataset import Dataset
 from argparse import ArgumentParser, RawTextHelpFormatter
 from my_utils.common import set_seed

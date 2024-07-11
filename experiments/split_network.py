@@ -15,8 +15,6 @@ parent_dir = os.path.abspath(os.path.join(current_dir, os.pardir))
 # Add the parent directory to sys.path
 sys.path.append(parent_dir)
 
-print(parent_dir)
-
 from my_utils import set_seed, flatIdx2matIdx, matIdx2flatIdx, pair_iter
 from src.dataset import Dataset
 

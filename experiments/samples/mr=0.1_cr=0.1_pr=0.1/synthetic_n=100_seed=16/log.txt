@@ -1,0 +1,19 @@
++ Seed: 19
++ Max sample size: 1000
++ Residual init time: 0
++ Residual last time: 899
++ Residual nodes num: 100
++ Residual is directed: False
++ Residual is signed: False
++ Min interval size: 8.989999771118164
++ The statistics of the reconstruction set:
+	- Zero durations: 5497 | Pos durations: 951
+	- Zero samples: 951 | Pos samples: 951
++ The statistics of the validation set:	- Zero durations: 5033 | Pos durations: 136
+	- Zero samples: 136 | Pos samples: 136
++ The statistics of the completion set:
+	- Zero durations: 5031 | Pos durations: 132
+	- Zero samples: 132 | Pos samples: 132
++ The statistics of the future prediction set:
+	- Zero durations: 4536 | Pos durations: 538
+	- Zero samples: 538 | Pos samples: 538
