@@ -49,6 +49,8 @@ def get_scores(sample_folder: str, dataset: str, set_type:str, score_type: str, 
             modelname += f"_spe={spe}_bs={batch_size}_lr={lr}_seed={seed}"
             model_path = os.path.join(BASE_FOLDER, "experiments", f"models_{SAMPLE_FILE}", modelname + ".model")
 
+            print(model_path)
+
             # Load the model
             kwargs, lm_state = torch.load(model_path, map_location=torch.device('cpu'))
             kwargs['device'] = 'cpu'
